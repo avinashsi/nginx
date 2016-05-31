@@ -1,0 +1,22 @@
+location /test {
+    content_by_lua '
+        local reqType = ngx.var.request_method
+        if reqType == ngx.HTTP_POST 
+            OR reqType == ngx.HTTP_DELETE 
+            OR reqType == ngx.HTTP_PUT 
+        then
+            res = ngx.location.capture("/write_instance")
+        else
+            res = ngx.location.capture("/read_instance")
+        end
+        ngx.say(res.body)
+    ';
+}
+location /write_instance {
+    internal;
+    proxy_pass http://127.0.0.1:8080;
+}
+location /read_instance {
+    internal;
+    proxy_pass http://127.0.0.1:9080;
+}
